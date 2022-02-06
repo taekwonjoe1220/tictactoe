@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Tic Tac Toe</title>
+</head>
+
+<body>
+  <h1>Tic Tac Toe</h1>
+  <!-- Blank Board -->
+  <div id="board">
+    <!-- 9 unique div IDs for game logic -->
+    <div id="0" class="boardSpace" data-index='0'></div>
+    <div id="1" class="boardSpace" data-index='1'></div>
+    <div id="2" class="boardSpace" data-index='2'></div>
+    <div id="3" class="boardSpace" data-index='3'></div>
+    <div id="4" class="boardSpace" data-index='4'></div>
+    <div id="5" class="boardSpace" data-index='5'></div>
+    <div id="6" class="boardSpace" data-index='6'></div>
+    <div id="7" class="boardSpace" data-index='7'></div>
+    <div id="8" class="boardSpace" data-index='8'></div>
+  </div>
+  <div class="player-container">
+
+    <h2 class="player1 player current">Player 1</h2>
+    <h2 class="player2 player">Player 2</h2>
+  </div>
+
+  <!--Button to Reset Game  -->
+  <button id="reset">
+    <span>Reset Game</span>
+  </button>
+
+  <!-- Modal popup with winner -->
+  <div class="modal hidden">
+    <div class="modal-content">
+      <h2 class="winner">Congratulations X Wins!</h2>
+      <h2 class="tie">It's a Draw!</h2>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+
+</html>
