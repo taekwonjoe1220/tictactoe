@@ -6,7 +6,6 @@ Working version of the Tic Tac Toe app is almost complete. Everything is working
 
 ## ** List of updates to make as of 2/6 **
 
-~~(NEED TO DO) Finish functionality of tie mechanic ** DONE ** ~~
 1. (SHOULD DO) Add media queries and work on responsiveness for mobile
 2. (SHOULD DO) Fix object nesting so that users don't have access to certain methods/variables - right now users can manually change the turn in the console
 3. (WANT TO DO) Update logic to reduce the number of times it needs to check for a winner (for turncount >= 5 only)
