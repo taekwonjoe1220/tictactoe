@@ -1,5 +1,4 @@
 "use strict";
-
 // 1. Game Board with rendering mechanics, drawing mechanics, reset board mechanic
 const gameBoard = (function () {
   // fill game board with 9 empty spaces
@@ -7,16 +6,18 @@ const gameBoard = (function () {
 
   // cache DOM
   const _boardSpaces = document.querySelectorAll(".boardSpace");
-  const _reset = document.getElementById("reset");
+  const _resetBtn = document.getElementById("reset");
+  let _currentSpace;
 
   _render();
 
   // bind events
   _boardSpaces.forEach((space) => {
+    space.addEventListener('click', setCurrentSpace);
     space.addEventListener("click", _draw);
   });
 
-  _reset.addEventListener("click", reset);
+  _resetBtn.addEventListener("click", reset);
 
   function _render() {
     // iterate over each board space and add array content to that space
@@ -24,12 +25,16 @@ const gameBoard = (function () {
       space.textContent = _board[space.dataset.index];
     });
   }
-
+  function setCurrentSpace(event) {
+    _currentSpace = event.target.dataset.index;
+  }
+  function getCurrentSpace() {
+    return _currentSpace;
+  }
   function _draw(event) {
-    let currentSpace = event.target.dataset.index;
     let currentText = event.target.textContent;
     if (currentText == "" && !game.checkWinner()) {
-      _board[currentSpace] = player.getCurrentPlayer() == 1 ? "X" : "O";
+      _board[_currentSpace] = player.getCurrentPlayer() == 1 ? "X" : "O";
       player.changePlayer();
       game.checkTie();
       _render();
@@ -54,6 +59,7 @@ const gameBoard = (function () {
 
   return {
     getBoard,
+    getCurrentSpace,
   };
 })();
 
@@ -68,7 +74,7 @@ const player = (function () {
   }
   function changePlayer() {
     _currentPlayer *= -1; // multiply by -1 to change whose turn it is
-    if (!game.checkWinner()) {
+    if (!game.getWinner()) {
       if (_currentPlayer == "1") {
         playerFlare[0].classList.add("current");
         playerFlare[1].classList.remove("current");
@@ -96,21 +102,23 @@ const game = (function () {
   const _modal = document.querySelector(".modal");
   const _winner = document.querySelector(".winner");
   const _tie = document.querySelector(".tie");
+  const _close = document.querySelector(".close");
 
   // init variables
   let winner = false;
   let turnCount = 0; // use number of turns to check if there's a tie after board is full
 
   // bind events
+
   // When the user clicks anywhere outside of the modal, close it
   window.onclick = function (event) {
     if (event.target == _modal) {
-      _modal.style.display = "none";
-      _winner.style.display = "none";
-      _tie.style.display = "none";
+      closeModal();
     }
   };
-
+  _close.addEventListener('click', () => {
+    closeModal();
+  })
   function _gameOver() {
     _modal.style.display = "block";
     _winner.style.display = "block";
@@ -123,6 +131,11 @@ const game = (function () {
   }
   function _resetWinner() {
     winner = false;
+  }
+  function closeModal() {
+    _modal.style.display = "none";
+    _winner.style.display = "none";
+    _tie.style.display = "none";
   }
   function checkTie() {
     let tieCheck = false;
@@ -141,50 +154,70 @@ const game = (function () {
     _winner.style.display = "none";
     _tie.style.display = "none";
   }
-  function checkWinner() {
-    let currentBoard = gameBoard.getBoard();
-    // check rows
+
+  // Modularize check winner into checking rows, diagonals, and columns
+
+  function checkRows(boardArr) {
+
     for (let i = 0; i <= 6; i += 3) {
       let rows = [];
-      rows.push(currentBoard[i] + currentBoard[i + 1] + currentBoard[i + 2]);
+      rows.push(boardArr[i] + boardArr[i + 1] + boardArr[i + 2]);
       for (let j = 0; j < 3; j++) {
         if (rows[j] == "XXX" || rows[j] == "OOO") {
           winner = true;
         }
       }
     }
-    // check cols
+  }
+  function checkCols(boardArr) {
     for (let i = 0; i <= 2; i++) {
       let cols = [];
-      cols.push(currentBoard[i] + currentBoard[i + 3] + currentBoard[i + 6]);
+      cols.push(boardArr[i] + boardArr[i + 3] + boardArr[i + 6]);
       for (let j = 0; j < 3; j++) {
         if (cols[j] == "XXX" || cols[j] == "OOO") {
           winner = true;
         }
       }
     }
-    // check diagonals
+  }
+  function checkDiagonals(boardArr) {
     for (let i = 0; i <= 2; i += 2) {
-      let diags = [];
+      let diagonals = [];
       if (i === 0) {
-        diags.push(currentBoard[i] + currentBoard[i + 4] + currentBoard[i + 8]);
+        diagonals.push(boardArr[i] + boardArr[i + 4] + boardArr[i + 8]);
       } else {
-        diags.push(currentBoard[i] + currentBoard[i + 2] + currentBoard[i + 4]);
+        diagonals.push(boardArr[i] + boardArr[i + 2] + boardArr[i + 4]);
       }
       for (let j = 0; j < 3; j++) {
-        if (diags[j] == "XXX" || diags[j] == "OOO") {
+        if (diagonals[j] == "XXX" || diagonals[j] == "OOO") {
           winner = true;
         }
       }
     }
+  }
+  function checkWinner() {
+    // let currentSpace = gameBoard.getCurrentSpace(); // plan to check specific win conditions based on which space was currently played in
+    // no need to check until someone is logically able to win
+    let currentBoard = gameBoard.getBoard();
+    if (turnCount > 4) {
+      checkRows(currentBoard);
+      checkCols(currentBoard);
+      checkDiagonals(currentBoard);
+    }
+
     if (winner) {
       _gameOver();
     }
+    return winner;
+  }
+
+  function getWinner() {
     return winner;
   }
   return {
     checkWinner,
     checkTie,
     resetGame,
+    getWinner,
   };
 })();
